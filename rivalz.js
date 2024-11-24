@@ -120,4 +120,3 @@ async function runClaim() {
     console.log('Waiting for 12 hours for next claiming...'.yellow);
     await delay(12 * 60 * 60 * 1000);
   }
-}
