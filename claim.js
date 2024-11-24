@@ -65,21 +65,21 @@ async function doClaim(privateKey) {
   const wallet = new ethers.Wallet(privateKey, provider);
   const address = await wallet.getAddress();
   try {
-    await sendRequest('options', `https://be.rivalz.ai/api-v1/auth/get-blog-subscription-point`, 'OPTIONS');
-    await sendRequest('get', `https://be.rivalz.ai/api-v1/auth/get-blog-subscription-point`, 'GET');
-	await delay(2000);
-    await sendRequest('options', `https://be.rivalz.ai/api-v1/auth/get-reward-quest-history`, 'OPTIONS');
-    await sendRequest('get', `https://be.rivalz.ai/api-v1/auth/get-reward-quest-history`, 'GET');
-	await delay(2000);
     await sendRequest('options', `https://api.rivalz.ai/fragment/v1/badges/checkAnswer/7/DEPIN202409109049ZNODEAGENTsteganography`, 'OPTIONS');
     await sendRequest('get', `https://api.rivalz.ai/fragment/v1/badges/checkAnswer/7/DEPIN202409109049ZNODEAGENTsteganography`, 'GET');
 	await delay(5000);
     await sendRequest('options', `https://api.rivalz.ai/fragment/v1/badges/claim/${address}/9`, 'OPTIONS Claim');
     await sendRequest('post', `https://api.rivalz.ai/fragment/v1/badges/claim/${address}/9`, 'POST Claim');
 	await delay(5000);
+    await sendRequest('options', `https://be.rivalz.ai/api-v1/auth/get-blog-subscription-point`, 'OPTIONS');
+    await sendRequest('get', `https://be.rivalz.ai/api-v1/auth/get-blog-subscription-point`, 'GET');
+	await delay(2000);
+    await sendRequest('options', `https://be.rivalz.ai/api-v1/auth/get-reward-quest-history`, 'OPTIONS');
+    await sendRequest('get', `https://be.rivalz.ai/api-v1/auth/get-reward-quest-history`, 'GET');
+	await delay(2000);
     await sendRequest('options', `https://api.rivalz.ai/fragment/v1/badges/claim/${address}/8`, 'OPTIONS Claim');
     await sendRequest('post', `https://api.rivalz.ai/fragment/v1/badges/claim/${address}/8`, 'POST Claim');
-	await delay(2000);
+	await delay(5000);
   } catch (error) {
     const errorMessage = `Error executing Claim Badge: ${error.message}`;
     console.log(errorMessage.red);
