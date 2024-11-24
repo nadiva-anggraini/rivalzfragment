@@ -93,29 +93,31 @@ async function doClaim(privateKey) {
 
 async function runClaim() {
   displayHeader();
-  for (const PRIVATE_KEY of PRIVATE_KEYS) {
-    try {
-      for (let i = 0; i < 20; i++) {
-        await delay(5000);
-		const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
-        const receiptTx = await doClaim(PRIVATE_KEY);
-        if (receiptTx) {
-          const successMessage = `[${timezone}] Transaction Hash: ${explorer.tx(receiptTx)}`;
-		  await delay(10000);
-          console.log(successMessage.cyan);
-          appendLog(successMessage);
+  while (true)
+    for (const PRIVATE_KEY of PRIVATE_KEYS) {
+      try {
+        for (let i = 0; i < 20; i++) {
+          await delay(5000);
+          const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
+          const receiptTx = await doClaim(PRIVATE_KEY);
+          if (receiptTx) {
+            const successMessage = `[${timezone}] Transaction Hash: ${explorer.tx(receiptTx)}`;
+            await delay(10000);
+            console.log(successMessage.cyan);
+            appendLog(successMessage);
+          }
+          const AGPoints = await getFragPoint(PRIVATE_KEY);
+          console.log('');
         }
-		const AGPoints = await getFragPoint(PRIVATE_KEY);
+      } catch (error) {
+        const errorMessage = `[${timezone}] Error processing transaction: ${error.message}`;
+        console.log(errorMessage.red);
+        appendLog(errorMessage);
         console.log('');
       }
-    } catch (error) {
-      const errorMessage = `[${timezone}] Error processing transaction: ${error.message}`;
-      console.log(errorMessage.red);
-      appendLog(errorMessage);
-      console.log('');
     }
+    appendLog('');
+    console.log('Waiting for 12 hours for next claiming...'.yellow);
+    await delay(12 * 60 * 60 * 1000);
   }
-  appendLog('');
 }
-
-runClaim();
