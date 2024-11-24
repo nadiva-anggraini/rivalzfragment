@@ -37,7 +37,7 @@ async function getFragPoint(privateKey) {
     const response = await axios.get(url);
     if (response.data && response.data.data) {
       const fragPoint = response.data.data.fragPoint;
-      console.log(`Address: ${address}, AG Poits: ${fragPoint}`.green);
+      console.log(`Address: ${address}, AG Points: ${fragPoint}`.green);
     } else {
       console.error('Data format unexpected or missing.'.red);
     }
