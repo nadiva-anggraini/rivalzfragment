@@ -45,11 +45,32 @@ async function sendRequest(method, url, logType) {
     console.error(`[${logType}] Failed for ${url}: ${error.message}`.red);
   }
 }
-
+async function getFragPoint(privateKey) {
+  const wallet = new ethers.Wallet(privateKey, provider);
+  const address = await wallet.getAddress();
+  const url = `https://be.rivalz.ai/api-v1/orbit-db/total-node-info/${address}`;
+  try {
+    const response = await axios.get(url);
+    if (response.data && response.data.data) {
+      const fragPoint = response.data.data.fragPoint;
+      console.log(`Address: ${address}, AG Points: ${fragPoint}`.green);
+    } else {
+      console.error('Data format unexpected or missing.'.red);
+    }
+  } catch (error) {
+    console.error(`Failed to fetch fragPoint for ${address}: ${error.message}`.red);
+  }
+}
 async function doClaim(privateKey) {
   const wallet = new ethers.Wallet(privateKey, provider);
   const address = await wallet.getAddress();
   try {
+    await sendRequest('options', `https://be.rivalz.ai/api-v1/auth/get-blog-subscription-point`, 'OPTIONS');
+    await sendRequest('get', `https://be.rivalz.ai/api-v1/auth/get-blog-subscription-point`, 'GET');
+	await delay(2000);
+    await sendRequest('options', `https://be.rivalz.ai/api-v1/auth/get-reward-quest-history`, 'OPTIONS');
+    await sendRequest('get', `https://be.rivalz.ai/api-v1/auth/get-reward-quest-history`, 'GET');
+	await delay(2000);
     await sendRequest('options', `https://api.rivalz.ai/fragment/v1/badges/checkAnswer/7/DEPIN202409109049ZNODEAGENTsteganography`, 'OPTIONS');
     await sendRequest('get', `https://api.rivalz.ai/fragment/v1/badges/checkAnswer/7/DEPIN202409109049ZNODEAGENTsteganography`, 'GET');
 	await delay(5000);
@@ -58,6 +79,7 @@ async function doClaim(privateKey) {
 	await delay(5000);
     await sendRequest('options', `https://api.rivalz.ai/fragment/v1/badges/claim/${address}/8`, 'OPTIONS Claim');
     await sendRequest('post', `https://api.rivalz.ai/fragment/v1/badges/claim/${address}/8`, 'POST Claim');
+	await delay(2000);
   } catch (error) {
     const errorMessage = `Error executing Claim Badge: ${error.message}`;
     console.log(errorMessage.red);
@@ -68,6 +90,7 @@ async function runClaim() {
 	for (const PRIVATE_KEY of PRIVATE_KEYS) {
 		try {
 			await doClaim(PRIVATE_KEY);
+			await getFragPoint(PRIVATE_KEY);
 		} catch (error) {
 			const errorMessage = `Error processing Claim. Details: ${error.message}`;
 			console.log(errorMessage.red);
