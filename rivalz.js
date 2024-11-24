@@ -93,23 +93,32 @@ async function doClaim(privateKey) {
 
 async function runClaim() {
   displayHeader();
-  while (true)
+
+  if (!Array.isArray(PRIVATE_KEYS) || PRIVATE_KEYS.length === 0) {
+    console.error('No private keys found in privateKeys.json.'.red);
+    process.exit(1);
+  }
+
+  while (true) {
     for (const PRIVATE_KEY of PRIVATE_KEYS) {
       try {
         for (let i = 0; i < 20; i++) {
-          await delay(5000);
           const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
+          await delay(5000);
           const receiptTx = await doClaim(PRIVATE_KEY);
+
           if (receiptTx) {
             const successMessage = `[${timezone}] Transaction Hash: ${explorer.tx(receiptTx)}`;
             await delay(10000);
             console.log(successMessage.cyan);
             appendLog(successMessage);
           }
-          const AGPoints = await getFragPoint(PRIVATE_KEY);
+
+          await getFragPoint(PRIVATE_KEY);
           console.log('');
         }
       } catch (error) {
+        const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
         const errorMessage = `[${timezone}] Error processing transaction: ${error.message}`;
         console.log(errorMessage.red);
         appendLog(errorMessage);
@@ -120,3 +129,5 @@ async function runClaim() {
     console.log('Waiting for 12 hours for next claiming...'.yellow);
     await delay(12 * 60 * 60 * 1000);
   }
+}
+runClaim();
