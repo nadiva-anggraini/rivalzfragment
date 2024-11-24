@@ -109,7 +109,7 @@ async function runClaim() {
 
           if (receiptTx) {
             const successMessage = `[${timezone}] Transaction Hash: ${explorer.tx(receiptTx)}`;
-            await delay(10000);
+            await delay(5000);
             console.log(successMessage.cyan);
             appendLog(successMessage);
           }
