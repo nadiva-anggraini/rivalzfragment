@@ -55,6 +55,7 @@ async function doClaim(privateKey) {
 	await delay(5000);
     await sendRequest('options', `https://api.rivalz.ai/fragment/v1/badges/claim/${address}/9`, 'OPTIONS Claim');
     await sendRequest('post', `https://api.rivalz.ai/fragment/v1/badges/claim/${address}/9`, 'POST Claim');
+	await delay(5000);
     await sendRequest('options', `https://api.rivalz.ai/fragment/v1/badges/claim/${address}/8`, 'OPTIONS Claim');
     await sendRequest('post', `https://api.rivalz.ai/fragment/v1/badges/claim/${address}/8`, 'POST Claim');
   } catch (error) {
