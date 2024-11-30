@@ -111,7 +111,7 @@ async function runClaim() {
           const receiptTx = await doClaim(PRIVATE_KEY);
 
           if (receiptTx) {
-            const successMessage = `[${timezone}] Transaction Hash: ${explorer.tx(receiptTx)}`;
+            const successMessage = `[${timezone}] Transaction Hash: ${explorer.tx(receiptTx)} (${i + 1}/20)`;
             await delay(5000);
             console.log(successMessage.cyan);
             appendLog(successMessage);
