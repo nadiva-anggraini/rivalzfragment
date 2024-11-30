@@ -29,6 +29,9 @@ function appendLog(message) {
  * @param {string} url - Request URL.
  * @param {string} logType - Log identifier.
  */
+function timestamp() {
+  return moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
+}
 async function getFragPoint(privateKey) {
   const wallet = new ethers.Wallet(privateKey, provider);
   const address = await wallet.getAddress();
@@ -118,8 +121,7 @@ async function runClaim() {
           console.log('');
         }
       } catch (error) {
-        const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
-        const errorMessage = `[${timezone}] Error processing transaction: ${error.message}`;
+        const errorMessage = `[${timestamp()}] Error processing transaction: ${error.message}`;
         console.log(errorMessage.red);
         appendLog(errorMessage);
         console.log('');
