@@ -179,7 +179,7 @@ async function runClaim() {
     }
     const nextClaimDelay = await getNextClaimDelay(PRIVATE_KEYS[0]);
     const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
-    console.log(`[${timezone}] Waiting for ${nextClaimDelay / 1000} seconds until the next claim...`.yellow);
+    console.log(`[${timezone}] Waiting for ${nextClaimDelay / 1000} seconds until the next claim...`);
     await delay(nextClaimDelay);
   }
 }
