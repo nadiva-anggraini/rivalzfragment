@@ -1,6 +1,6 @@
 {
   "name": "rivalz-fragment-auto-claiming",
-  "main": "index.js",
+  "main": "rivalz.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
