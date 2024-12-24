@@ -138,6 +138,7 @@ async function runClaim() {
   while (true) {
     for (const PRIVATE_KEY of PRIVATE_KEYS) {
       try {
+        await delay(3000);
         const claimableAmount = await getClaimableAmount(PRIVATE_KEY);
 
         if (claimableAmount === 0) {
