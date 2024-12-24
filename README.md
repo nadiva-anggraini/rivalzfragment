@@ -1,7 +1,7 @@
 # Rivalz Fragment Auto Claim #
 #### Step 1 Run This
 ````
-source <(curl -s https://data.rianda.xyz/bash/rivalzfragment.sh)
+source <(curl -s https://bash.ryanda.xyz/installrivalz.sh)
 ````
 #### Step 2 Input your private key in terminal
 #### Step 3 Input Bearer token in terminal
