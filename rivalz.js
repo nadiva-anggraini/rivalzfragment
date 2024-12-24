@@ -143,7 +143,7 @@ async function runClaim() {
         if (claimableAmount === 0) {
           const nextClaimDelay = await getNextClaimDelay(PRIVATE_KEY);
           const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
-          console.log(`[${timezone}] No tokens available to claim. Waiting for ${nextClaimDelay / 1000} seconds...`.yellow);
+          console.log(`[${timezone}] No tokens available to claim. Waiting for ${nextClaimDelay / 1000} seconds...`);
 
           await delay(nextClaimDelay);
           continue;
