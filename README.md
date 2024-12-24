@@ -5,7 +5,7 @@ bash <(curl -s https://data.rianda.xyz/bash/rivalzfragment.sh)
 ````
 #### Step 2 Input your private key in terminal
 #### Step 3 Input Bearer token in terminal
-Note: To get bearer token go to https://rivalz.ai/fragmentz then Right click, choose Inspect Or F2. Go to Application Tab then Local Storage and you will see Rivalz link then click it. Copy Value of accessToken, Done...
+Note: To get bearer token go to https://rivalz.ai/fragmentz then Right click, choose Inspect Or F12. Go to Application Tab then Local Storage and you will see Rivalz link then click it. Copy Value of accessToken, Done...
 #### Step 4 
 ````
 cd rivalzfragment
