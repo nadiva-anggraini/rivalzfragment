@@ -29,9 +29,6 @@ function appendLog(message) {
  * @param {string} url - Request URL.
  * @param {string} logType - Log identifier.
  */
-function timestamp() {
-  return moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
-}
 async function getFragPoint(privateKey) {
   const wallet = new ethers.Wallet(privateKey, provider);
   const address = await wallet.getAddress();
@@ -48,6 +45,42 @@ async function getFragPoint(privateKey) {
     console.error(`Failed to fetch fragPoint for ${address}: ${error.message}`.red);
   }
 }
+
+async function getNextClaimDelay(privateKey) {
+  const wallet = new ethers.Wallet(privateKey, provider);
+  const address = await wallet.getAddress();
+  const claimContract = new ethers.Contract(CLAIM_CA, RIVALZ_ABI, wallet);
+
+  try {
+    const nextClaimBigInt = await claimContract.sNextClaims(address);
+    const nextClaimTimestamp = Number(nextClaimBigInt);
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+
+    const delayInSeconds = nextClaimTimestamp - currentTimestamp;
+
+    console.log(`Next claim delay for ${address}: ${delayInSeconds} seconds`.blue);
+    return delayInSeconds > 0 ? delayInSeconds * 1000 : 0;
+  } catch (error) {
+    console.error(`Error fetching sNextClaims for ${address}: ${error.message}`.red);
+    return 0;
+  }
+}
+
+async function getClaimableAmount(privateKey) {
+  const wallet = new ethers.Wallet(privateKey, provider);
+  const address = await wallet.getAddress();
+  const claimContract = new ethers.Contract(CLAIM_CA, RIVALZ_ABI, wallet);
+
+  try {
+    const claimableAmount = await claimContract.claimableAmount(address);
+    console.log(`Claimable amount for ${address}: ${Number(claimableAmount)}`.blue);
+    return Number(claimableAmount);
+  } catch (error) {
+    console.error(`Error fetching claimableAmount for ${address}: ${error.message}`.red);
+    return 0;
+  }
+}
+
 async function sendRequest(method, url, logType) {
   const headers = {
     Authorization: `Bearer ${BEARER_TOKEN}`,
@@ -101,18 +134,26 @@ async function runClaim() {
     console.error('No private keys found in privateKeys.json.'.red);
     process.exit(1);
   }
-
   while (true) {
     for (const PRIVATE_KEY of PRIVATE_KEYS) {
       try {
+        const claimableAmount = await getClaimableAmount(PRIVATE_KEY);
+        if (claimableAmount === 0) {
+          const nextClaimDelay = await getNextClaimDelay(PRIVATE_KEY);
+          const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
+          console.log(`[${timezone}] No claimable tokens available. Waiting for ${nextClaimDelay / 1000} seconds...`.yellow);
+          await delay(nextClaimDelay);
+          continue;
+        }
+        console.log(`Proceeding with transaction as claimable amount is greater than 0.`.green); 
         for (let i = 0; i < 20; i++) {
           const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
           await delay(5000);
           const receiptTx = await doClaim(PRIVATE_KEY);
 
           if (receiptTx) {
-            const successMessage = `[${timezone}] Transaction Hash: ${explorer.tx(receiptTx)} (${i + 1}/20)`;
-            await delay(5000);
+            const successMessage = `[${timezone}] Transaction Hash: ${explorer.tx(receiptTx)}`;
+            await delay(10000);
             console.log(successMessage.cyan);
             appendLog(successMessage);
           }
@@ -121,15 +162,17 @@ async function runClaim() {
           console.log('');
         }
       } catch (error) {
-        const errorMessage = `[${timestamp()}] Error processing transaction: ${error.message}`;
+        const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
+        const errorMessage = `[${timezone}] Error processing transaction: ${error.message}`;
         console.log(errorMessage.red);
         appendLog(errorMessage);
         console.log('');
       }
     }
-    appendLog('');
-    console.log('Waiting for 12 hours for next claiming...'.yellow);
-    await delay(12 * 60 * 60 * 1000);
+    const nextClaimDelay = await getNextClaimDelay(PRIVATE_KEYS[0]);
+    const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
+    console.log(`[${timezone}] Waiting for ${nextClaimDelay / 1000} seconds until the next claim...`.yellow);
+    await delay(nextClaimDelay);
   }
 }
 runClaim();
