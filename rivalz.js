@@ -134,19 +134,26 @@ async function runClaim() {
     console.error('No private keys found in privateKeys.json.'.red);
     process.exit(1);
   }
+
   while (true) {
     for (const PRIVATE_KEY of PRIVATE_KEYS) {
       try {
         const claimableAmount = await getClaimableAmount(PRIVATE_KEY);
+
         if (claimableAmount === 0) {
           const nextClaimDelay = await getNextClaimDelay(PRIVATE_KEY);
           const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
-          console.log(`[${timezone}] No claimable tokens available. Waiting for ${nextClaimDelay / 1000} seconds...`.yellow);
+          console.log(`[${timezone}] No tokens available to claim. Waiting for ${nextClaimDelay / 1000} seconds...`.yellow);
+
           await delay(nextClaimDelay);
           continue;
         }
-        console.log(`Proceeding with transaction as claimable amount is greater than 0.`.green); 
-        for (let i = 0; i < 20; i++) {
+
+        console.log(`Claimable amount available: ${claimableAmount}`.green);
+        const tokensPerTransaction = 1;
+        const maxTransactions = Math.floor(claimableAmount / tokensPerTransaction);
+
+        for (let i = 0; i < maxTransactions; i++) {
           const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
           await delay(5000);
           const receiptTx = await doClaim(PRIVATE_KEY);
@@ -161,6 +168,7 @@ async function runClaim() {
           await getFragPoint(PRIVATE_KEY);
           console.log('');
         }
+
       } catch (error) {
         const timezone = moment().tz('Asia/Jakarta').format('HH:mm:ss [WIB] DD-MM-YYYY');
         const errorMessage = `[${timezone}] Error processing transaction: ${error.message}`;
@@ -175,4 +183,5 @@ async function runClaim() {
     await delay(nextClaimDelay);
   }
 }
+
 runClaim();
