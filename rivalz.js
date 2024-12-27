@@ -100,22 +100,33 @@ async function sendRequest(method, url, logType) {
 async function doClaim(privateKey) {
   const wallet = new ethers.Wallet(privateKey, provider);
   const address = await wallet.getAddress();
+
   try {
-    const gasLimit = 300000;
-    const claimContract = new ethers.Contract(
-      CLAIM_CA,
-      RIVALZ_ABI,
-      wallet
-    );
+    const claimContract = new ethers.Contract(CLAIM_CA, RIVALZ_ABI, wallet);
+
+    // Cek saldo
+    const balance = await wallet.getBalance();
+    console.log(`Balance for ${address}: ${ethers.formatEther(balance)} ETH`);
+
+    if (balance.lt(ethers.parseEther('0.01'))) {
+      console.error(`Insufficient balance for gas fees.`);
+      return;
+    }
+
+    // Estimasi gas
     const estimatedGas = await claimContract.estimateGas.claim();
-    console.log(`Estimated Gas: ${estimatedGas.toString()}`);
-    const txClaim = await claimContract.claim({
-      gasLimit: gasLimit,
-    });
+    const gasLimit = estimatedGas.mul(2); // Tambahkan margin
+    console.log(`Estimated Gas: ${estimatedGas.toString()}, Gas Limit: ${gasLimit.toString()}`);
+
+    // Kirim transaksi
+    const txClaim = await claimContract.claim({ gasLimit });
     const receipt = await txClaim.wait(1);
+
     const successMessage = `Transaction Confirmed in block ${receipt.blockNumber}`;
     console.log(successMessage.blue);
     appendLog(successMessage);
+
+    // Kirim request tambahan
     await sendRequest('options', `https://api.rivalz.ai/fragment/v2/fragmentz-v2/balance/${address}`, 'OPTIONS Balance');
     await sendRequest('options', `https://api.rivalz.ai/fragment/v2/fragmentz-v2/claim/${txClaim.hash}`, 'OPTIONS Claim');
     await sendRequest('get', `https://api.rivalz.ai/fragment/v2/fragmentz-v2/balance/${address}`, 'GET Balance');
@@ -123,12 +134,12 @@ async function doClaim(privateKey) {
 
     return txClaim.hash;
   } catch (error) {
-    const errorMessage = `Error executing transaction: ${error.message}`;
+    const errorDetails = error.reason || error.code || error.data || error.message;
+    const errorMessage = `Error executing transaction: ${errorDetails}`;
     console.log(errorMessage.red);
     appendLog(errorMessage);
   }
 }
-
 async function runClaim() {
   displayHeader();
 
