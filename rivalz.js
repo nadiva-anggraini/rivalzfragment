@@ -100,20 +100,8 @@ async function sendRequest(method, url, logType) {
 async function doClaim(privateKey) {
   const wallet = new ethers.Wallet(privateKey, provider);
   const address = await wallet.getAddress();
-
+  const claimContract = new ethers.Contract(CLAIM_CA, RIVALZ_ABI, wallet);
   try {
-    const claimContract = new ethers.Contract(CLAIM_CA, RIVALZ_ABI, wallet);
-
-    // Cek saldo
-    const balance = await wallet.getBalance();
-    console.log(`Balance for ${address}: ${ethers.formatEther(balance)} ETH`);
-
-    if (balance.lt(ethers.parseEther('0.01'))) {
-      console.error(`Insufficient balance for gas fees.`);
-      return;
-    }
-
-    // Estimasi gas
     const estimatedGas = await claimContract.estimateGas.claim();
     const gasLimit = estimatedGas.mul(2); // Tambahkan margin
     console.log(`Estimated Gas: ${estimatedGas.toString()}, Gas Limit: ${gasLimit.toString()}`);
