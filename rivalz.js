@@ -104,7 +104,7 @@ async function doClaim(privateKey) {
 
   try {
     const estimatedGas = await wallet.estimateGas(claimContract.claim);
-    const gasLimit = Math.ceil(estimatedGas / 100000) * 100000;
+    const gasLimit = Math.ceil(Number(estimatedGas) / 100000) * 100000;
     console.log(`Estimated Gas: ${estimatedGas.toString()}, Gas Limit: ${gasLimit.toString()}`);
     const txClaim = await claimContract.claim({ gasLimit });
     const receipt = await txClaim.wait(1);
