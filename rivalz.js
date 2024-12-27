@@ -103,9 +103,8 @@ async function doClaim(privateKey) {
   const claimContract = new ethers.Contract(CLAIM_CA, RIVALZ_ABI, wallet);
   try {
     const estimatedGas = await wallet.estimateGas( claimContract.claim );
-    const gasLimit = estimatedGas.mul(2); // Tambahkan margin
+    const gasLimit = estimatedGas;
     console.log(`Estimated Gas: ${estimatedGas.toString()}, Gas Limit: ${gasLimit.toString()}`);
-    // Kirim transaksi
     const txClaim = await claimContract.claim({ gasLimit });
     const receipt = await txClaim.wait(1);
 
