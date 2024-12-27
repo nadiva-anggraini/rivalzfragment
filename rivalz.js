@@ -101,18 +101,16 @@ async function doClaim(privateKey) {
   const wallet = new ethers.Wallet(privateKey, provider);
   const address = await wallet.getAddress();
   const claimContract = new ethers.Contract(CLAIM_CA, RIVALZ_ABI, wallet);
+
   try {
-    const estimatedGas = await wallet.estimateGas( claimContract.claim );
-    const gasLimit = estimatedGas;
+    const estimatedGas = await wallet.estimateGas(claimContract.claim);
+    const gasLimit = Math.ceil(estimatedGas / 100000) * 100000;
     console.log(`Estimated Gas: ${estimatedGas.toString()}, Gas Limit: ${gasLimit.toString()}`);
     const txClaim = await claimContract.claim({ gasLimit });
     const receipt = await txClaim.wait(1);
-
     const successMessage = `Transaction Confirmed in block ${receipt.blockNumber}`;
     console.log(successMessage.blue);
     appendLog(successMessage);
-
-    // Kirim request tambahan
     await sendRequest('options', `https://api.rivalz.ai/fragment/v2/fragmentz-v2/balance/${address}`, 'OPTIONS Balance');
     await sendRequest('options', `https://api.rivalz.ai/fragment/v2/fragmentz-v2/claim/${txClaim.hash}`, 'OPTIONS Claim');
     await sendRequest('get', `https://api.rivalz.ai/fragment/v2/fragmentz-v2/balance/${address}`, 'GET Balance');
@@ -126,6 +124,7 @@ async function doClaim(privateKey) {
     appendLog(errorMessage);
   }
 }
+
 async function runClaim() {
   displayHeader();
 
