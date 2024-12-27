@@ -110,6 +110,8 @@ async function doClaim(privateKey) {
     const txClaim = await claimContract.claim({
       gasLimit: gasLimit,
     });
+    const estimatedGas = await claimContract.estimateGas.claim();
+    console.log(`Estimated Gas: ${estimatedGas.toString()}`);
     const receipt = await txClaim.wait(1);
     const successMessage = `Transaction Confirmed in block ${receipt.blockNumber}`;
     console.log(successMessage.blue);
