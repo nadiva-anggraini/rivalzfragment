@@ -105,6 +105,7 @@ async function doClaim(privateKey) {
   try {
     const estimatedGas = await wallet.estimateGas(claimContract.claim);
     const gasLimit = Math.ceil(Number(estimatedGas) / 100000) * 100000;
+    console.log(`Gas limit: ${gasLimit}`);
     const txClaim = await claimContract.claim({ gasLimit });
     const receipt = await txClaim.wait(1);
     const successMessage = `Transaction Confirmed in block ${receipt.blockNumber}`;
